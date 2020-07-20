@@ -28,6 +28,7 @@ class AuthController extends Controller
         if ($validator->fails()) {
             // $errors = $validator->errors()->all();
             return response()->json([
+                'success' => false,
                 'errors' => 'The provided fields are incorrect.'
             ]);
         }
@@ -36,11 +37,13 @@ class AuthController extends Controller
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
             return response()->json([
-                'email' => 'The provided credentials are incorrect.'
+                'success' => false,
+                'error' => 'The provided credentials are incorrect.'
             ]);
         }
 
         return response()->json([
+            'success' => true,
             'token' => $user->createToken($request->device_name)->plainTextToken,
             'user' => [
                 'name' => $user->name,
@@ -63,9 +66,14 @@ class AuthController extends Controller
             'name' => 'required',
         ]);
         if ($validator->fails()) {
-            // $errors = $validator->errors()->all();
+            $error_messages = $validator->errors()->messages();
+            $error_keys = array_keys($error_messages);
+            foreach ($error_keys as $error_key) {
+                $error_result[$error_key] = $error_messages[$error_key];
+            }
             return response()->json([
-                'error' => 'The provided fields are incorrect.'
+                'success' => false,
+                'error' => $error_result
             ]);
         }
 
@@ -76,8 +84,8 @@ class AuthController extends Controller
         ]);
 
         return response()->json([
-            'success' => 'OK'
+            'success' => true,
+            'message' => 'The user is registered successfuly.'
         ]);
     }
-
 }
