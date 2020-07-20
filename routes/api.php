@@ -14,9 +14,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::get('/token/require', function () {
+    return response()->json([
+        'success' => false,
+        'error' => 'Your credential token is invalid.'
+    ]);
+})->name('token_require');
 
 Route::post('/token', 'API\AuthController@getToken');
 Route::post('/register', 'API\AuthController@register');
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::put('/profile/{user}', 'API\AuthController@updateProfile');
+    Route::get('/profile/{user}', 'API\AuthController@showProfile');
+    
+});
